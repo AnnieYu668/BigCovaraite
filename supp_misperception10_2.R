@@ -1,4 +1,4 @@
-devtools::install_github("stan-dev/cmdstanr")
+#devtools::install_github("stan-dev/cmdstanr")
 #library()
 library(rethinking)
 library(jtools)
@@ -88,7 +88,7 @@ cbind(colMeans(ResOUt), t(apply(ResOUt,2, quantile, probs =c(0.025, .975))))
 #--- Generate summaries
 
 
-SimMisconceptPlot <- function(N, bet.a, bet.b, lb.a, lb.b){
+#SimMisconceptPlot <- function(N, bet.a, bet.b, lb.a, lb.b){
   
   X  = rnorm(n=N) #belief Dieatary fat is ok 
   X <- X/sd(X)
@@ -141,7 +141,7 @@ SimMisconceptPlot <- function(N, bet.a, bet.b, lb.a, lb.b){
 #plot( coeftab( lm(Y~ FatA), lm(Y~ FatA + FatB)), pars =c("FatA"))
 #plot( coeftab( lm(Y~ FatB), lm(Y~ FatA + FatB)), pars =c("FatB"))
 
-plot_summs(lm(Y~ FatA), lm(Y~ FatB), lm(Y~ FatA + FatB), scale=T,model.names = c("Y~FATA","Y~FATB", "Y~FATA+FATB"))
+#plot_summs(lm(Y~ FatA), lm(Y~ FatB), lm(Y~ FatA + FatB), scale=T,model.names = c("Y~FATA","Y~FATB", "Y~FATA+FATB"))
 #coeftab_plot( coeftab( lm(Y~ FatA), lm(Y~ FatB), lm(Y~ FatA + FatB) ), pars ="M")
 
 
@@ -320,8 +320,8 @@ SimMisconcept12 <- function(N){
 
 SimMisconcept12(500000)
 
-ResOUt_500 <- t(sapply(rep(500, 10000), SimMisconcept12))
-ResOUt_1000 <- t(sapply(rep(1000, 10000), SimMisconcept12))
+#ResOUt_500 <- t(sapply(rep(500, 10000), SimMisconcept12))
+#ResOUt_1000 <- t(sapply(rep(1000, 10000), SimMisconcept12))
 ResOUt_2000 <- t(sapply(rep(500000, 10000), SimMisconcept12))
 
 
@@ -410,42 +410,6 @@ SimMisconcept12 <- function(N){
   (Res)
 }
 
-SimMisconcept12(50000)
-
-ResOUt2_500 <- t(sapply(rep(500, 10000), SimMisconcept12))
-ResOUt2_1000 <- t(sapply(rep(1000, 10000), SimMisconcept12))
-ResOUt2_2000 <- t(sapply(rep(500000, 10000), SimMisconcept12))
-
-
-Temp <- ResOUt2_2000 
-colNam <- colnames(Temp)
-colNam[c(1:2,17:20)] <- c("rho.ZX[Y1>tau]", "Tau", "rho.Y2X", "rho.Y2Z", "prho.Y2X", "prho.Y2Z")
-colnames(Temp) <- colNam
-
-#head(ResOUt)
-sum(abs(Temp[,1]) < 0.0006)
-Temp <- (Temp[abs(Temp[,1]) < 0.0006, ]);
-dim(Temp)
-
-round(cbind(colMeans(Temp), t(apply(Temp,2, quantile, probs =c(0.025, .975)))), 4)
-
-
-
-
-
-CovMat <- function(al.z, bet.z, bet.x, lb.z){
-  
-  Sig <- matrix(0, nrow=3,ncol=3)
-  Sig[1,2] = Sig[2,1] =  lb.z  # cor(X,Z)
-  Sig[1,3] = Sig[3,1] = bet.z + lb.z*bet.x # cor(Y1, Z)
-  Sig[2,3] = Sig[3,2] = bet.x + bet.z*lb.z  #cor(Y1, X)
-  diag(Sig) <- 1
-  
-  Sig
-  
-}
-
-CovMat(al.z, bet.z, bet.x, lb.z)
 
 CorrelValZX <- function(al.z, bet.z, bet.x, lb.z, a){
   
@@ -471,7 +435,44 @@ CorrelValZX <- function(al.z, bet.z, bet.x, lb.z, a){
   
 }
 
+
+CovMat <- function(al.z, bet.z, bet.x, lb.z){
+  
+  Sig <- matrix(0, nrow=3,ncol=3)
+  Sig[1,2] = Sig[2,1] =  lb.z  # cor(X,Z)
+  Sig[1,3] = Sig[3,1] = bet.z + lb.z*bet.x # cor(Y1, Z)
+  Sig[2,3] = Sig[3,2] = bet.x + bet.z*lb.z  #cor(Y1, X)
+  diag(Sig) <- 1
+  
+  Sig
+  
+}
+
+CovMat(al.z, bet.z, bet.x, lb.z)
+
+
 optim(1.6, CorrelValZX, al.z=al.z, bet.z = bet.z, bet.x = bet.x, lb.z = lb.z)
+
+SimMisconcept12(50000)
+
+#ResOUt2_500 <- t(sapply(rep(500, 10000), SimMisconcept12))
+#ResOUt2_1000 <- t(sapply(rep(1000, 10000), SimMisconcept12))
+ResOUt2_2000 <- t(sapply(rep(500000, 10000), SimMisconcept12))
+
+
+Temp <- ResOUt2_2000 
+colNam <- colnames(Temp)
+colNam[c(1:2,17:20)] <- c("rho.ZX[Y1>tau]", "Tau", "rho.Y2X", "rho.Y2Z", "prho.Y2X", "prho.Y2Z")
+colnames(Temp) <- colNam
+
+#head(ResOUt)
+sum(abs(Temp[,1]) < 0.0006)
+Temp <- (Temp[abs(Temp[,1]) < 0.0006, ]);
+dim(Temp)
+
+round(cbind(colMeans(Temp), t(apply(Temp,2, quantile, probs =c(0.025, .975)))), 4)
+
+
 
 #----------------------------------------------------------------------
 #------ Including Y2 
@@ -506,9 +507,6 @@ ParmSelc <- function(lb.z, a,b){
   c(betax, betaz, lb.z, (betaz + lb.z*betax)*(betax + lb.z*betaz) - lb.z, lb.z/((betaz + lb.z*betax)*(betax + lb.z*betaz)) )
 }
 ParmSelc <- Vectorize(ParmSelc,"lb.z")
-
-
-
 
 
 ParmSelcMin <- function(lb.z, a,b){
@@ -612,41 +610,6 @@ bet.x <- V00[1,id]
 bet.z <- V00[2,id]
 lb.z <- V00[3,id]
 
-
-
-#@ estimate partial Slope - will take a covariance matrix with the last row and column for Y 
-PartialSlope <- function(Cov){
-  J = ncol(Cov)
-  sdt = (sqrt(diag(Cov)))
-  CorMat <- cov2cor(Cov)
-  Bet <- numeric(J-1)
-  Bet[1] = (sdt[J]/sdt[1])*(CorMat[1,3] - CorMat[2,3]*CorMat[1,2] )/(1 - CorMat[1,2]^2) ## Z
-  Bet[2] = (sdt[J]/sdt[2])*(CorMat[2,3] - CorMat[1,3]*CorMat[1,2] )/(1 - CorMat[1,2]^2) ## for X
-  
-  Bet  
-}
-
-#@ Compute the inverse of the Correlation Matrix
-InvMat3by3 <- function(Sig){
-  InvSig <- matrix(0, nrow=3, ncol = 3)
-  
-  InvSig[1,1] = Sig[3,3]*Sig[2,2] - Sig[2,3]*Sig[2,3]
-  InvSig[1,2] = Sig[1,3]*Sig[2,3] - Sig[3,3]*Sig[1,2]
-  InvSig[1,3] = Sig[1,2]*Sig[2,3] - Sig[1,3]*Sig[2,2]
-  
-  InvSig[2,2] = Sig[3,3]*Sig[1,1] - Sig[1,3]*Sig[1,3]
-  InvSig[2,3] = Sig[1,2]*Sig[1,3] - Sig[1,1]*Sig[2,3] ## 
-  
-  InvSig[3,3] = Sig[1,1]*Sig[2,2] - Sig[1,2]*Sig[1,2]
-  
-  
-  DetVal <- Sig[1,1]*InvSig[1,1] + Sig[1,2]*InvSig[1,2] + Sig[1,3]*InvSig[1,3]
-  DetVal
-  
-  InvSigF <- (1/DetVal)*(InvSig + t(InvSig) - diag(diag(InvSig)) )
-  list(InverseCov = InvSigF, Partial_Correlation = (-1)*cov2cor(InvSigF))
-}
-
 #@SImulate data
 
 SimMisconcept12V2 <- function(N, bet.x, bet.z, lb.z){
@@ -726,6 +689,41 @@ SimMisconcept12V2 <- function(N, bet.x, bet.z, lb.z){
   #Out <- rbind(Out, Res)
   return(Res)
 }
+
+#@ estimate partial Slope - will take a covariance matrix with the last row and column for Y 
+PartialSlope <- function(Cov){
+  J = ncol(Cov)
+  sdt = (sqrt(diag(Cov)))
+  CorMat <- cov2cor(Cov)
+  Bet <- numeric(J-1)
+  Bet[1] = (sdt[J]/sdt[1])*(CorMat[1,3] - CorMat[2,3]*CorMat[1,2] )/(1 - CorMat[1,2]^2) ## Z
+  Bet[2] = (sdt[J]/sdt[2])*(CorMat[2,3] - CorMat[1,3]*CorMat[1,2] )/(1 - CorMat[1,2]^2) ## for X
+  
+  Bet  
+}
+
+#@ Compute the inverse of the Correlation Matrix
+InvMat3by3 <- function(Sig){
+  InvSig <- matrix(0, nrow=3, ncol = 3)
+  
+  InvSig[1,1] = Sig[3,3]*Sig[2,2] - Sig[2,3]*Sig[2,3]
+  InvSig[1,2] = Sig[1,3]*Sig[2,3] - Sig[3,3]*Sig[1,2]
+  InvSig[1,3] = Sig[1,2]*Sig[2,3] - Sig[1,3]*Sig[2,2]
+  
+  InvSig[2,2] = Sig[3,3]*Sig[1,1] - Sig[1,3]*Sig[1,3]
+  InvSig[2,3] = Sig[1,2]*Sig[1,3] - Sig[1,1]*Sig[2,3] ## 
+  
+  InvSig[3,3] = Sig[1,1]*Sig[2,2] - Sig[1,2]*Sig[1,2]
+  
+  
+  DetVal <- Sig[1,1]*InvSig[1,1] + Sig[1,2]*InvSig[1,2] + Sig[1,3]*InvSig[1,3]
+  DetVal
+  
+  InvSigF <- (1/DetVal)*(InvSig + t(InvSig) - diag(diag(InvSig)) )
+  list(InverseCov = InvSigF, Partial_Correlation = (-1)*cov2cor(InvSigF))
+}
+
+
 
 names <-c("N","betx","betz","lbz","tau",
           "corSel",
